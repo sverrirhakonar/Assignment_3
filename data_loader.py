@@ -17,7 +17,7 @@ def load_market_data(file_path):
             symbol = row[1]
             price = float(row[2])
             data_points.append(MarketDataPoint(timestamp, symbol, price))
-    return data_points, len(data_points)
+    return data_points
 
 
 
