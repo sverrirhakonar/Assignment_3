@@ -18,5 +18,5 @@ def profile_memory(func, func_args=(), func_kwargs=None, file_path=None):
     memory usage in MB at different intervals during its execution."""
     if func_kwargs is None:
         func_kwargs = {}
-    mem_usage, result = memory_usage((func, func_args, func_kwargs), retval=True, interval=0.001)
+    mem_usage, result = memory_usage((func, func_args, func_kwargs), retval=True, interval=0.1)
     return max(mem_usage), result

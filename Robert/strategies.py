@@ -6,7 +6,9 @@ class NaiveMovingAverageStrategy(Strategy):
         self.prices = []
     
     # Theo time complexity: O(n), calculates the sum each time with +1 longer list each time.
+    # Theo time complexity with for loop: O(n**2), has to do it n times n in the end.
     # Theo space complexity: O(n), the list of prices gets larger and larger with each step, until n steps have been performed.
+
     def generate_signals(self, tick):
         price = tick.price
         if len(self.prices) == 0:
