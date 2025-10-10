@@ -24,8 +24,12 @@ def main():
     print("Successfully read the CSV file to MarketDataPoints.")
     print(f"Highest memory usage while reading CSV: {max_memory_usage:.2f} MB")
 
-    NMAT_memory_list, NMAT_signals_list = run_strategies_w_memory_check(NaiveMovingAverageStrategy, price_list)
-    print(NMAT_memory_list, NMAT_signals_list)
+    #NMAT_memory_list, NMAT_signals_list = run_strategies_w_memory_check(NaiveMovingAverageStrategy, price_list)
+    #print(NMAT_memory_list, NMAT_signals_list)
+    
+    print('NEW')
+    WMAS_memory_list, WMAS_signals_list = run_strategies_w_memory_check(WindowedMovingAverageStrategy, price_list)
+    print(WMAS_memory_list, WMAS_signals_list)
 
 
 if __name__ == "__main__":
