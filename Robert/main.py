@@ -1,48 +1,41 @@
 import data_loader
 from data_loader import read_csv_to_immutable_list
-from profiler import profile_memory
+from profiler import profile_memory, run_strategies_memory_check, run_strategies_time_check, run_data_loader_time_check, plot_profiling_results
 from models import Strategy
 from strategies import NaiveMovingAverageStrategy, WindowedMovingAverageStrategy
 from tqdm import tqdm
-
-
-
-def run_strategies(strategy_name, price_list):
-    length = len(price_list)
-    sample_memory = [0, length // 2, length - 1]
-    strat = strategy_name()
-    memory_list = []
-    signals_list = [] 
-    count = 0
-    for tick in tqdm(price_list, desc="Running strategy"):
-        if count in sample_memory:
-            max_memory_usage, signal = profile_memory(strat.generate_signals, func_args=(tick,))
-            memory_list.append(max_memory_usage)
-            signals_list.append(signal)
-        else:
-            signal = strat.generate_signals(tick)
-            signals_list.append(signal)
-        count += 1
-    return memory_list, signals_list
-        
-
+import timeit
+import pandas as pd
 
 def main():
-    file_path = "Robert/market_data.csv"
-    max_memory_usage, price_list = profile_memory(read_csv_to_immutable_list, func_args=(file_path,))
-    print("Successfully read the CSV file to MarketDataPoints.")
-    print(f"Highest memory usage while reading CSV: {max_memory_usage:.2f} MB")
+    strategies = [NaiveMovingAverageStrategy, WindowedMovingAverageStrategy]
+    file_paths = ["Robert/market_data_1k.csv", "Robert/market_data_10k.csv", "Robert/market_data_100k.csv"]
+    
+    # Check time and memory usage to load CSV to MarketDataPoints
+    price_history_dict = {}
+    for file_path in file_paths:
+        max_memory_usage, price_hist = profile_memory(read_csv_to_immutable_list, func_args=(file_path,))
+        elapsed_time, price_hist = run_data_loader_time_check(file_path)
+        price_history_dict[file_path] = (max_memory_usage, elapsed_time, price_hist)
+        
+    print("Successfully read the CSV files to MarketDataPoints, and profiled the memory usage and time elapsed for each file.")
+    #print(f"Highest memory usage while reading CSV: {max_memory_usage:.2f} MB")
+    
+    profiled_df = { 
+    (s.__name__ if hasattr(s, "__name__") else str(s)): {} 
+    for s in strategies
+    }
 
-    #NMAT_memory_list, NMAT_signals_list = run_strategies_w_memory_check(NaiveMovingAverageStrategy, price_list)
-    print('Running long strategy')
-    #NMAT_memory_list, NMAT_signals_list = run_strategies_w_memory_check(NaiveMovingAverageStrategy, price_list)
-    NMAT_memory_list, NMAT_signals_list = run_strategies(NaiveMovingAverageStrategy, price_list)
-    print(NMAT_memory_list[:5], NMAT_signals_list[:5])
-    print('Running þbetter strategy')
-    #WMAS_memory_list, WMAS_signals_list = run_strategies_w_memory_check(WindowedMovingAverageStrategy, price_list)
-    WMAS_memory_list, WMAS_signals_list = run_strategies(WindowedMovingAverageStrategy, price_list)
-    print(WMAS_memory_list[:5], WMAS_signals_list[:5])
-
+    for strat in strategies:
+        price_hist = price_history_dict[file_path][2]
+        strat_name = strat.__name__ if hasattr(strat, "__name__") else str(strat)
+        for file_path in file_paths:
+            price_hist = price_history_dict[file_path][2]
+            max_mem, signals = run_strategies_memory_check(strat, price_hist, max_memory = True)
+            elapsed_time, signals = run_strategies_time_check(strat, price_hist)
+            profiled_df[strat_name][file_path] = (max_mem, elapsed_time, signals)
+    
+    plot_profiling_results(price_history_dict, profiled_df)
 
 if __name__ == "__main__":
     main()
