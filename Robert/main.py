@@ -2,13 +2,13 @@ import data_loader
 from data_loader import read_csv_to_immutable_list
 from profiler import profile_memory, run_strategies_memory_check, run_strategies_time_check, run_data_loader_time_check, plot_profiling_results
 from models import Strategy
-from strategies import NaiveMovingAverageStrategy, WindowedMovingAverageStrategy
+from strategies import NaiveMovingAverageStrategy, NaiveMovingAverageStrategyOptimized, WindowedMovingAverageStrategy
 from tqdm import tqdm
 import timeit
 import pandas as pd
 
 def main():
-    strategies = [NaiveMovingAverageStrategy, WindowedMovingAverageStrategy]
+    strategies = [NaiveMovingAverageStrategy, NaiveMovingAverageStrategyOptimized ,WindowedMovingAverageStrategy]
     file_paths = ["Robert/market_data_1k.csv", "Robert/market_data_10k.csv", "Robert/market_data_100k.csv"]
     file_path_name_dict = {"Robert/market_data_1k.csv" : "1k", "Robert/market_data_10k.csv": "10k", "Robert/market_data_100k.csv": "100k"}
     # Check time and memory usage to load CSV to MarketDataPoints
@@ -95,11 +95,14 @@ if __name__ == "__main__":
         f.write("\n\n## Plots of scaling behavior\n\n")
         # Add your plot references here; see section 3 below for details
         # Examples:
-        f.write("![Time and memory profile](Robert/profiling_results.png)\n\n")
+        f.write("![Time and memory profile](profiling_results.png)\n\n")
 
 
-        f.write("## Narrative comparing strategies and optimization impact\n\n")
-        f.write("Add your analysis here. Compare throughput, latency, and memory across dataset sizes. Note any optimizations and their impact.\n\n")
+        f.write("## Comparing strategies and optimization impact\n\n")
+        f.write("We can see that with few tick the strategy does not matter a lot but when the ticks are increased a bit, they start to matter a lot. \n\n")
+        f.write("Runtime shoots up when ticks are increased to 100k for the orginial Naive strategy and for all strategies the memory usage starts to creep up with a 100k ticks. \n\n")
+        f.write("We can also see that a little optimization has an impact on the Naive strategy.. \n\n")
+
 
     # Second run: cProfile the workload and append the stats to the report
     import cProfile, pstats, io

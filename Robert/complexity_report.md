@@ -6,89 +6,96 @@
 
 | file                        |   load_time_s |   peak_mem_mb |
 |:----------------------------|--------------:|--------------:|
-| Robert/market_data_1k.csv   |     0.0052416 |       139.367 |
-| Robert/market_data_10k.csv  |     0.0558876 |       143.625 |
-| Robert/market_data_100k.csv |     0.481754  |       165.043 |
+| Robert/market_data_1k.csv   |     0.0047656 |       139.359 |
+| Robert/market_data_10k.csv  |     0.0472322 |       143.691 |
+| Robert/market_data_100k.csv |     0.579225  |       165.125 |
 
 ### Strategies
 
-| strategy                      | file   |   run_time_s |   peak_mem_mb |   signals_count |
-|:------------------------------|:-------|-------------:|--------------:|----------------:|
-| NaiveMovingAverageStrategy    | 1k     |    0.0100881 |       168.602 |            1001 |
-| NaiveMovingAverageStrategy    | 10k    |    0.760158  |       168.617 |           10001 |
-| NaiveMovingAverageStrategy    | 100k   |   55.5227    |       175.133 |          100001 |
-| WindowedMovingAverageStrategy | 1k     |    0.0004893 |       180.121 |            1001 |
-| WindowedMovingAverageStrategy | 10k    |    0.0136695 |       180.254 |           10001 |
-| WindowedMovingAverageStrategy | 100k   |    0.0915048 |       183.359 |          100001 |
+| strategy                            | file   |   run_time_s |   peak_mem_mb |   signals_count |
+|:------------------------------------|:-------|-------------:|--------------:|----------------:|
+| NaiveMovingAverageStrategy          | 1k     |    0.0058139 |       168.699 |            1001 |
+| NaiveMovingAverageStrategy          | 10k    |    0.529815  |       168.641 |           10001 |
+| NaiveMovingAverageStrategy          | 100k   |   49.3404    |       174.34  |          100001 |
+| NaiveMovingAverageStrategyOptimized | 1k     |    0.0005799 |       180.891 |            1001 |
+| NaiveMovingAverageStrategyOptimized | 10k    |    0.0050465 |       178.867 |           10001 |
+| NaiveMovingAverageStrategyOptimized | 100k   |    0.0807568 |       182.777 |          100001 |
+| WindowedMovingAverageStrategy       | 1k     |    0.0013898 |       187.906 |            1001 |
+| WindowedMovingAverageStrategy       | 10k    |    0.0062975 |       188.082 |           10001 |
+| WindowedMovingAverageStrategy       | 100k   |    0.220536  |       190.789 |          100001 |
 
 ## Plots of scaling behavior
 
-![Time and memory profile](Robert/profiling_results.png)
+![Time and memory profile](profiling_results.png)
 
-## Narrative comparing strategies and optimization impact
+## Comparing strategies and optimization impact
 
-Add your analysis here. Compare throughput, latency, and memory across dataset sizes. Note any optimizations and their impact.
+We can see that with few tick the strategy does not matter a lot but when the ticks are increased a bit, they start to matter a lot. 
+
+Runtime shoots up when ticks are increased to 100k for the orginial Naive strategy and for all strategies the memory usage starts to creep up with a 100k ticks. 
+
+We can also see that a little optimization has an impact on the Naive strategy.. 
 
 
 ## Additional profiling: cProfile
 
 ```
-         6223190 function calls (6205838 primitive calls) in 353.602 seconds
+         7412461 function calls (7395420 primitive calls) in 675.403 seconds
 
    Ordered by: cumulative time
-   List reduced from 1738 to 50 due to restriction <50>
+   List reduced from 1740 to 50 due to restriction <50>
 
    ncalls  tottime  percall  cumtime  percall filename:lineno(function)
-    434/2    0.009    0.000  352.416  176.208 C:\Users\Lenovo\anaconda3\Lib\site-packages\matplotlib\text.py:926(get_window_extent)
-       34    0.012    0.000  258.286    7.597 C:\Users\Lenovo\anaconda3\Lib\threading.py:641(wait)
-       21    0.001    0.000  219.946   10.474 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\profiler.py:11(profile_memory)
-       21    0.333    0.016  212.401   10.114 C:\Users\Lenovo\anaconda3\Lib\site-packages\memory_profiler.py:269(memory_usage)
-        6    0.225    0.037  188.391   31.399 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\profiler.py:21(run_strategies_memory_check)
-      255    0.003    0.000  180.911    0.709 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\connection.py:246(recv)
-      255    0.005    0.000  180.905    0.709 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\connection.py:310(_recv_bytes)
-      170  180.895    1.064  180.895    1.064 {built-in method _winapi.WaitForMultipleObjects}
-       34    0.378    0.011  154.353    4.540 C:\Users\Lenovo\anaconda3\Lib\threading.py:327(wait)
-   222035    1.064    0.000  128.234    0.001 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\strategies.py:12(generate_signals)
-   224210  126.992    0.001  127.276    0.001 {built-in method builtins.sum}
-    523/2    0.041    0.000  114.092   57.046 C:\Users\Lenovo\anaconda3\Lib\site-packages\matplotlib\text.py:358(_get_layout)
-      139   29.983    0.216   29.993    0.216 {method 'acquire' of '_thread.lock' objects}
-      722    0.036    0.000   10.028    0.014 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:102(acquire)
-       59    0.000    0.000   10.017    0.170 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:110(__enter__)
-        6    0.127    0.021    8.680    1.447 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\profiler.py:56(run_strategies_time_check)
-       85    0.001    0.000    6.238    0.073 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\process.py:142(join)
-      204    0.002    0.000    6.237    0.031 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\popen_spawn_win32.py:105(wait)
-      204    6.235    0.031    6.235    0.031 {built-in method _winapi.WaitForSingleObject}
-       10    0.832    0.083    3.130    0.313 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\data_loader.py:11(read_csv_to_immutable_list)
-   235020    1.051    0.000    1.711    0.000 C:\Users\Lenovo\anaconda3\Lib\csv.py:174(__next__)
-        3    0.000    0.000    1.226    0.409 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\profiler.py:48(run_data_loader_time_check)
-   222012    0.209    0.000    0.988    0.000 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:1160(__iter__)
-   222037    0.646    0.000    0.883    0.000 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\strategies.py:36(generate_signals)
-      657    0.017    0.000    0.751    0.001 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:1198(update)
-      663    0.007    0.000    0.731    0.001 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:1325(refresh)
-      669    0.005    0.000    0.708    0.001 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:1464(display)
-       85    0.002    0.000    0.483    0.006 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\process.py:110(start)
-       85    0.001    0.000    0.462    0.005 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\context.py:222(_Popen)
-       85    0.002    0.000    0.462    0.005 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\context.py:334(_Popen)
-       85    0.005    0.000    0.460    0.005 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\popen_spawn_win32.py:46(__init__)
-238795/238439    0.356    0.000    0.427    0.000 {built-in method builtins.next}
-       85    0.411    0.005    0.411    0.005 {built-in method _winapi.CreateProcess}
-   235010    0.397    0.000    0.397    0.000 <string>:2(__init__)
-     2007    0.004    0.000    0.386    0.000 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\utils.py:378(disp_len)
-     2007    0.006    0.000    0.375    0.000 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\utils.py:374(_text_width)
-   907924    0.357    0.000    0.357    0.000 {method 'append' of 'list' objects}
-      669    0.008    0.000    0.352    0.001 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:1150(__str__)
-      669    0.005    0.000    0.350    0.001 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:457(print_status)
-      132    0.010    0.000    0.348    0.003 C:\Users\Lenovo\anaconda3\Lib\site-packages\matplotlib\axis.py:1287(_update_ticks)
-1143533/1143481    0.340    0.000    0.340    0.000 {built-in method builtins.len}
-      669    0.056    0.000    0.334    0.000 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:464(format_meter)
-   370862    0.185    0.000    0.269    0.000 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\utils.py:375(<genexpr>)
-        1    0.000    0.000    0.212    0.212 C:\Users\Lenovo\anaconda3\Lib\site-packages\matplotlib\image.py:1508(imsave)
-        1    0.000    0.000    0.212    0.212 C:\Users\Lenovo\anaconda3\Lib\site-packages\PIL\Image.py:2509(save)
-        1    0.000    0.000    0.207    0.207 C:\Users\Lenovo\anaconda3\Lib\site-packages\PIL\PngImagePlugin.py:1300(_save)
-        1    0.000    0.000    0.207    0.207 C:\Users\Lenovo\anaconda3\Lib\site-packages\PIL\ImageFile.py:535(_save)
-        1    0.000    0.000    0.207    0.207 C:\Users\Lenovo\anaconda3\Lib\site-packages\PIL\ImageFile.py:563(_encode_tile)
-        3    0.206    0.069    0.206    0.069 {method 'encode' of 'ImagingEncoder' objects}
-   1127/5    0.007    0.000    0.183    0.037 C:\Users\Lenovo\anaconda3\Lib\site-packages\matplotlib\text.py:65(_get_text_metrics_with_cache)
+    408/2    0.008    0.000  566.169  283.085 C:\Users\Lenovo\anaconda3\Lib\site-packages\matplotlib\text.py:926(get_window_extent)
+       30    0.001    0.000  536.711   17.890 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\profiler.py:11(profile_memory)
+       30    1.232    0.041  529.896   17.663 C:\Users\Lenovo\anaconda3\Lib\site-packages\memory_profiler.py:269(memory_usage)
+        9    0.332    0.037  453.030   50.337 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\profiler.py:21(run_strategies_memory_check)
+      483    0.005    0.000  412.364    0.854 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\connection.py:246(recv)
+      483    0.008    0.000  412.354    0.854 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\connection.py:310(_recv_bytes)
+      324  412.339    1.273  412.339    1.273 {built-in method _winapi.WaitForMultipleObjects}
+       66    0.001    0.000  348.732    5.284 C:\Users\Lenovo\anaconda3\Lib\threading.py:641(wait)
+    518/2    0.043    0.000  345.698  172.849 C:\Users\Lenovo\anaconda3\Lib\site-packages\matplotlib\text.py:358(_get_layout)
+       66    0.315    0.005  334.542    5.069 C:\Users\Lenovo\anaconda3\Lib\threading.py:327(wait)
+      267  110.328    0.413  133.687    0.501 {method 'acquire' of '_thread.lock' objects}
+   222049    0.960    0.000  132.502    0.001 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\strategies.py:12(generate_signals)
+   224507  131.397    0.001  131.721    0.001 {built-in method builtins.sum}
+      103    0.001    0.000   90.172    0.875 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:110(__enter__)
+      829    0.123    0.000   49.023    0.059 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:102(acquire)
+      416    0.003    0.000   10.486    0.025 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\popen_spawn_win32.py:105(wait)
+      161    0.002    0.000   10.486    0.065 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\process.py:142(join)
+      416   10.482    0.025   10.482    0.025 {built-in method _winapi.WaitForSingleObject}
+        9    0.205    0.023    6.619    0.735 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\profiler.py:56(run_strategies_time_check)
+       10    0.699    0.070    2.644    0.264 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\data_loader.py:11(read_csv_to_immutable_list)
+   235020    0.895    0.000    1.452    0.000 C:\Users\Lenovo\anaconda3\Lib\csv.py:174(__next__)
+        3    0.000    0.000    1.280    0.427 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\profiler.py:48(run_data_loader_time_check)
+   333018    0.288    0.000    1.180    0.000 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:1160(__iter__)
+      717    0.018    0.000    0.839    0.001 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:1198(update)
+      733    0.008    0.000    0.826    0.001 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:1325(refresh)
+      742    0.006    0.000    0.805    0.001 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:1464(display)
+   222045    0.592    0.000    0.797    0.000 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\strategies.py:36(generate_signals)
+      161    0.003    0.000    0.796    0.005 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\process.py:110(start)
+      161    0.001    0.000    0.755    0.005 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\context.py:222(_Popen)
+      161    0.003    0.000    0.754    0.005 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\context.py:334(_Popen)
+      161    0.010    0.000    0.750    0.005 C:\Users\Lenovo\anaconda3\Lib\multiprocessing\popen_spawn_win32.py:46(__init__)
+      161    0.658    0.004    0.658    0.004 {built-in method _winapi.CreateProcess}
+  1351945    0.458    0.000    0.458    0.000 {method 'append' of 'list' objects}
+     2226    0.005    0.000    0.435    0.000 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\utils.py:378(disp_len)
+   222051    0.308    0.000    0.428    0.000 c:\Users\Lenovo\Documents\FinMath UChicago\Coursework\FINM 32500 1 Computing for Finance in Python\Assignment 3\Assignment_3\Robert\strategies.py:63(generate_signals)
+     2226    0.007    0.000    0.422    0.000 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\utils.py:374(_text_width)
+      742    0.006    0.000    0.399    0.001 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:457(print_status)
+      742    0.010    0.000    0.398    0.001 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:1150(__str__)
+      742    0.063    0.000    0.378    0.001 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:464(format_meter)
+239019/238663    0.300    0.000    0.366    0.000 {built-in method builtins.next}
+1366252/1366198    0.364    0.000    0.364    0.000 {built-in method builtins.len}
+   235010    0.331    0.000    0.331    0.000 <string>:2(__init__)
+      132    0.009    0.000    0.320    0.002 C:\Users\Lenovo\anaconda3\Lib\site-packages\matplotlib\axis.py:1287(_update_ticks)
+   411174    0.207    0.000    0.302    0.000 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\utils.py:375(<genexpr>)
+      742    0.006    0.000    0.211    0.000 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\std.py:451(fp_write)
+     1502    0.004    0.000    0.206    0.000 C:\Users\Lenovo\anaconda3\Lib\site-packages\tqdm\utils.py:194(inner)
+        1    0.000    0.000    0.206    0.206 C:\Users\Lenovo\anaconda3\Lib\site-packages\matplotlib\image.py:1508(imsave)
+        1    0.000    0.000    0.206    0.206 C:\Users\Lenovo\anaconda3\Lib\site-packages\PIL\Image.py:2509(save)
+        1    0.000    0.000    0.201    0.201 C:\Users\Lenovo\anaconda3\Lib\site-packages\PIL\PngImagePlugin.py:1300(_save)
+        1    0.000    0.000    0.201    0.201 C:\Users\Lenovo\anaconda3\Lib\site-packages\PIL\ImageFile.py:535(_save)
 
 
 

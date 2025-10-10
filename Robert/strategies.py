@@ -53,3 +53,28 @@ class WindowedMovingAverageStrategy(Strategy):
             self.prices.append(price)
             self.running_sum += price
             return signal
+
+
+class NaiveMovingAverageStrategyOptimized(Strategy):
+    def __init__(self):
+        self.prices = []
+        self._running_sum = 0.0
+
+    def generate_signals(self, tick):
+        price = tick.price
+        if not self.prices:
+            self.prices.append(price)
+            self._running_sum += price
+            return []
+        # O(1) average
+        mean_price = self._running_sum / len(self.prices)
+        if price < mean_price:
+            signal = ['BUY']
+        elif price > mean_price:
+            signal = ['SELL']
+        else:
+            signal = []
+        # update state
+        self.prices.append(price)
+        self._running_sum += price
+        return signal
