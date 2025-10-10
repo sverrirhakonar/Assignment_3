@@ -131,4 +131,9 @@ def plot_profiling_results(price_history_dict, profiled_df):
     axes[2].legend()
 
     plt.tight_layout()
-    plt.show()
+    output_path = "Robert/profiling_results.png"
+    import os
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    plt.savefig(output_path, bbox_inches="tight", dpi=180)
+    plt.close()
+    print(f"Saved plot to {os.path.abspath(output_path)}")
